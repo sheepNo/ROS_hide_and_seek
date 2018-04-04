@@ -44,6 +44,7 @@ private:
     float translation_done;
 
     bool new_goal_to_reach;//to check if a new /goal_to_reach is available or not
+    bool new_loc;
     bool new_rotation_done;//to check if a new /rotation_done is available or not
     bool new_translation_done;//to check if a new /translation_done is available or not
 
@@ -69,6 +70,7 @@ decision() {
     cond_translation = false;
 
     new_goal_to_reach = false;
+    new_loc = false;
     new_rotation_done = false;
     new_translation_done = false;
 
@@ -88,7 +90,12 @@ decision() {
 void update() {
 
     // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
-    if ( ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if (on_a_vertex) {
+        // TODO person detection
+        on_a_vertex = false;
+    }
+
+    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
         ROS_INFO("(decision_node) /goal_to_reach received: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
@@ -117,8 +124,8 @@ void update() {
             std_msgs::Float32 msg_rotation_to_do;
             //to complete
             msg_rotation_to_do.data = rotation_to_do;
-	    pub_rotation_to_do.publish(msg_rotation_to_do);
-	            }
+            pub_rotation_to_do.publish(msg_rotation_to_do);
+	    }
         else {
             geometry_msgs::Point msg_goal_reached;
             msg_goal_reached.x = 0;
@@ -131,6 +138,7 @@ void update() {
     }
 
     new_goal_to_reach = false;
+    new_loc = false;
 
     //we receive an ack from rotation_action_node. So, we perform the /translation_to_do
     if ( new_rotation_done ) {
@@ -178,6 +186,7 @@ void goal_to_reachCallback(const geometry_msgs::Point::ConstPtr& g) {
 
 void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {
 
+    new_loc = true;
     ROS_INFO("New data of AMCL received");
     // TODO localizationCallback
     robot_coordinates.x = amcloutput->pose.pose.position.x;

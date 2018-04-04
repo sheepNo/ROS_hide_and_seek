@@ -52,6 +52,8 @@ private:
     bool current_robot_moving;
     bool new_robot; // new data from robot_moving
 
+    bool new_loc;
+
 public:
 
 next_vertex_choice() {
@@ -66,6 +68,8 @@ next_vertex_choice() {
 
     current_robot_moving = true;
     new_robot = false;
+
+    new_loc = false;
 
     vertices_list[1000];
 
@@ -105,10 +109,12 @@ next_vertex_choice() {
 void update() {
 
     // we wait for new data of the localization_node and of the robot_moving_node to perform loc processing
-    if (new_robot) {
+    if (new_loc && new_robot) {
         new_robot = false;
+        new_loc = false;
+        
 		nb_pts = 0;
-		
+
         // if the robot is not moving then we can check if we are on the vertex we aimed for
         if (!current_robot_moving) {
             ROS_INFO("robot is not moving");
@@ -159,12 +165,12 @@ void update_goal() {
     }
     ROS_INFO("goal not reached");
     ROS_INFO("goal not updated");
-    
+
     // the next goal is green TODO
     display[nb_pts].x = goal_to_reach.x;
     display[nb_pts].y = goal_to_reach.y;
     display[nb_pts].z = goal_to_reach.z;
-    
+
     colors[nb_pts].r = 0;
     colors[nb_pts].g = 1;
     colors[nb_pts].b = 0;
@@ -177,6 +183,7 @@ void update_goal() {
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {
 
+    new_loc = true;
     ROS_INFO("New data of AMCL received");
     // TODO localizationCallback
     robot_coordinates.x = amcloutput->pose.pose.position.x;
