@@ -42,7 +42,7 @@ private:
     geometry_msgs::Point goal_to_reach;
 
     // graphical display
-    int nb_pts;
+    int nb_pts; // DONE: the points need to display
     geometry_msgs::Point display[2000];
     std_msgs::ColorRGBA colors[2000];
 
@@ -108,7 +108,8 @@ void update() {
     if (new_loc && new_robot) {
         new_loc = false;
         new_robot = false;
-
+		nb_pts = 0;
+		
         // if the robot is not moving then we can check if we are on the vertex we aimed for
         if (!current_robot_moving) {
             ROS_INFO("robot is not moving");
@@ -121,7 +122,7 @@ void update() {
                 // TODO publish the goal to reach
                 pub_next_vertex.publish(goal_to_reach);
 
-                // TODO graphical display of the results
+                // DONE graphical display of the results
                 populateMarkerTopic();
             }
         } else {
@@ -159,6 +160,18 @@ void update_goal() {
     }
     ROS_INFO("goal not reached");
     ROS_INFO("goal not updated");
+    
+    // the next goal is green TODO
+    display[nb_pts].x = goal_to_reach.x;
+    display[nb_pts].y = goal_to_reach.y;
+    display[nb_pts].z = goal_to_reach.z;
+    
+    colors[nb_pts].r = 0;
+    colors[nb_pts].g = 1;
+    colors[nb_pts].b = 0;
+    colors[nb_pts].a = 1.0;
+
+    nb_pts++;
 }
 
 //CALLBACKS
@@ -197,14 +210,98 @@ float distancePoints(geometry_msgs::Point pa, geometry_msgs::Point pb) {
 // Draw the field of view and other references
 void populateMarkerReference() {
 
-    // TODO populateMarkerReference
+    // DONE populateMarkerReference
+	visualization_msgs::Marker references;
+
+    references.header.frame_id = "laser";
+    references.header.stamp = ros::Time::now();
+    references.ns = "example";
+    references.id = 1;
+    references.type = visualization_msgs::Marker::LINE_STRIP;
+    references.action = visualization_msgs::Marker::ADD;
+    references.pose.orientation.w = 1;
+
+    references.scale.x = 0.02;
+
+    references.color.r = 1.0f;
+    references.color.g = 1.0f;
+    references.color.b = 1.0f;
+    references.color.a = 1.0;
+    geometry_msgs::Point v;
+
+    v.x =  0.02 * cos(-2.356194);
+    v.y =  0.02 * sin(-2.356194);
+    v.z = 0.0;
+    references.points.push_back(v);
+
+    v.x =  5.6 * cos(-2.356194);
+    v.y =  5.6 * sin(-2.356194);
+    v.z = 0.0;
+    references.points.push_back(v);
+
+    float beam_angle = -2.356194 + 0.006136;
+    // first and last beam are already included
+    for (int i=0 ; i< 723; i++, beam_angle += 0.006136){
+        v.x =  5.6 * cos(beam_angle);
+        v.y =  5.6 * sin(beam_angle);
+        v.z = 0.0;
+        references.points.push_back(v);
+    }
+
+    v.x =  5.6 * cos(2.092350);
+    v.y =  5.6 * sin(2.092350);
+    v.z = 0.0;
+    references.points.push_back(v);
+
+    v.x =  0.02 * cos(2.092350);
+    v.y =  0.02 * sin(2.092350);
+    v.z = 0.0;
+    references.points.push_back(v);
+
+    pub_next_vertex_marker.publish(references);
     return;
 
 }
 
 void populateMarkerTopic(){
 
-    // TODO populateMarkerTopic
+    // DONE populateMarkerTopic
+    visualization_msgs::Marker marker;
+
+    marker.header.frame_id = "laser";
+    marker.header.stamp = ros::Time::now();
+    marker.ns = "example";
+    marker.id = 0;
+    marker.type = visualization_msgs::Marker::POINTS;
+    marker.action = visualization_msgs::Marker::ADD;
+
+    marker.pose.orientation.w = 1;
+
+    marker.scale.x = 0.05;
+    marker.scale.y = 0.05;
+
+    marker.color.a = 1.0;
+
+    ROS_INFO("%i points to display", nb_pts);
+    for (int loop = 0; loop < nb_pts; loop++) {
+            geometry_msgs::Point p;
+            std_msgs::ColorRGBA c;
+
+            p.x = display[loop].x;
+            p.y = display[loop].y;
+            p.z = display[loop].z;
+
+            c.r = colors[loop].r;
+            c.g = colors[loop].g;
+            c.b = colors[loop].b;
+            c.a = colors[loop].a;
+
+            ROS_INFO("(%f, %f, %f) with rgba (%f, %f, %f, %f)", p.x, p.y, p.z, c.r, c.g, c.b, c.a);
+            marker.points.push_back(p);
+            marker.colors.push_back(c);
+        }
+
+    pub_next_vertex_marker.publish(marker);
     populateMarkerReference();
 
 }
