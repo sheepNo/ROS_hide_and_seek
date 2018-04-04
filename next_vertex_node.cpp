@@ -8,6 +8,7 @@
 #include "std_msgs/ColorRGBA.h"
 #include <cmath>
 #include "std_msgs/Bool.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 // used for on_vertex decision
 #define max_dist_to_goal 0.5
@@ -17,7 +18,7 @@ class next_vertex_choice {
 private:
     ros::NodeHandle n;
 
-    ros::Subscriber sub_localization;
+    ros::Subscriber sub_amcl = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", localizationCallback);
     ros::Subscriber sub_robot_moving;
 
     ros::Publisher pub_next_vertex;
@@ -36,7 +37,7 @@ private:
 
     // coordinates of the robot
     geometry_msgs::Point robot_coordinates;
-    bool new_loc; // new data from localization
+    float robot_orientation;
 
     // geometry_msgs::Point next_vertex_coordinates;
     geometry_msgs::Point goal_to_reach;
@@ -64,7 +65,6 @@ next_vertex_choice() {
     // pub_on_vertex = n.advertise<>("")
 
     current_robot_moving = true;
-    new_loc = false;
     new_robot = false;
 
     vertices_list[1000];
@@ -105,8 +105,7 @@ next_vertex_choice() {
 void update() {
 
     // we wait for new data of the localization_node and of the robot_moving_node to perform loc processing
-    if (new_loc && new_robot) {
-        new_loc = false;
+    if (new_robot) {
         new_robot = false;
 
         // if the robot is not moving then we can check if we are on the vertex we aimed for
@@ -163,14 +162,14 @@ void update_goal() {
 
 //CALLBACKS
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
-void localizationCallback(const geometry_msgs::PoseWithCovariance::ConstPtr& amcloutput) {
+void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {
 
-    new_loc = true;
     ROS_INFO("New data of AMCL received");
     // TODO localizationCallback
-    robot_coordinates.x = amcloutput->pose.position.x;
-    robot_coordinates.y = amcloutput->pose.position.y;
+    robot_coordinates.x = amcloutput->pose.pose.position.x;
+    robot_coordinates.y = amcloutput->pose.pose.position.y;
     robot_coordinates.z = 0.0;
+    robot_orientation = tf::getYaw(amcloutput->pose.orientation)
 
     ROS_INFO("Robot_coordinates: (%f, %f)", robot_coordinates.x, robot_coordinates.y);
 
@@ -217,7 +216,7 @@ int main(int argc, char **argv){
 
     ros::init(argc, argv, "next_vertex");
 
-    next_vertex bsObject;
+    next_vertex_choice bsObject;
 
     ros::spin();
 

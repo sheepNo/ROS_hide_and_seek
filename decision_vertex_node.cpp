@@ -7,6 +7,8 @@
 #include "std_msgs/Float32.h"
 #include <cmath>
 #include <tf/transform_datatypes.h>
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
+
 
 class decision {
 private:
@@ -18,8 +20,12 @@ private:
     ros::Subscriber sub_goal_to_reach;
 
     // communication with localization
-    ros::Subscriber sub_localization;
+    ros::Subscriber sub_amcl = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", localizationCallback);
     ros::Subscriber sub_robot_moving;
+
+    // localization
+    geometry_msgs::Point robot_coordinates;
+    float robot_orientation;
 
     // communication with rotation_action
     ros::Publisher pub_rotation_to_do;
@@ -86,6 +92,10 @@ void update() {
 
         ROS_INFO("(decision_node) /goal_to_reach received: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
+        // transform goal_to_reach to relative coordinates
+        goal_to_reach.x -= robot_coordinates.x;
+        goal_to_reach.y -= robot_coordinates.y;
+
         // we have a rotation and a translation to perform
         // we compute the /translation_to_do
         translation_to_do = sqrt( ( goal_to_reach.x * goal_to_reach.x ) + ( goal_to_reach.y * goal_to_reach.y ) );
@@ -99,6 +109,8 @@ void update() {
 
             if ( goal_to_reach.y < 0 )
                 rotation_to_do *=-1;
+
+            rotation_to_do += robot_orientation;
 
             //we first perform the /rotation_to_do
             ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
@@ -164,6 +176,20 @@ void goal_to_reachCallback(const geometry_msgs::Point::ConstPtr& g) {
 
 }
 
+void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {
+
+    ROS_INFO("New data of AMCL received");
+    // TODO localizationCallback
+    robot_coordinates.x = amcloutput->pose.pose.position.x;
+    robot_coordinates.y = amcloutput->pose.pose.position.y;
+    robot_coordinates.z = 0.0;
+    robot_orientation = tf::getYaw(amcloutput->pose.orientation)
+
+    ROS_INFO("Robot_coordinates: (%f, %f)", robot_coordinates.x, robot_coordinates.y);
+
+    return;
+}
+
 void rotation_doneCallback(const std_msgs::Float32::ConstPtr& a) {
 // process the angle received from the rotation node
 
@@ -185,12 +211,6 @@ float distancePoints(geometry_msgs::Point pa, geometry_msgs::Point pb) {
 
     return sqrt(pow((pa.x-pb.x),2.0) + pow((pa.y-pb.y),2.0));
 
-}
-
-point_abs_to_rel() {
-    orientation = tf::getYaw(amcloutput->pose.orientation)
-    // TODO
-    return;
 }
 
 };
