@@ -45,6 +45,7 @@ private:
 
     bool new_goal_to_reach;//to check if a new /goal_to_reach is available or not
     bool new_loc;
+    bool on_a_vertex;
     bool new_rotation_done;//to check if a new /rotation_done is available or not
     bool new_translation_done;//to check if a new /translation_done is available or not
 
@@ -71,6 +72,7 @@ decision() {
 
     new_goal_to_reach = false;
     new_loc = false;
+    on_a_vertex = true;
     new_rotation_done = false;
     new_translation_done = false;
 
@@ -90,12 +92,16 @@ decision() {
 void update() {
 
     // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
+    // TODO change the value of on_a_vertex with goal_reached
     if (on_a_vertex) {
-        // TODO person detection
+        if (new_detection_done) {
+            new_detection_done = false;
+        }
         on_a_vertex = false;
+        // TODO person detection
     }
 
-    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if ( ( !on_a_vertex ) && ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
         ROS_INFO("(decision_node) /goal_to_reach received: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
@@ -151,7 +157,7 @@ void update() {
         std_msgs::Float32 msg_translation_to_do;
         //to complete
         msg_translation_to_do.data = translation_to_do;
-	pub_translation_to_do.publish(msg_translation_to_do);
+	    pub_translation_to_do.publish(msg_translation_to_do);
     }
 
     //we receive an ack from translation_action_node. So, we send an ack to the moving_persons_detector_node
@@ -164,7 +170,8 @@ void update() {
         geometry_msgs::Point msg_goal_reached;
         ROS_INFO("(decision_node) /goal_reached (%f, %f)", msg_goal_reached.x, msg_goal_reached.y);
         //to complete
-	pub_goal_reached.publish(msg_goal_reached);
+        // TODO check if the goal has been reached
+        pub_goal_reached.publish(msg_goal_reached);
 
         ROS_INFO(" ");
         ROS_INFO("(decision_node) waiting for a /goal_to_reach");
@@ -182,6 +189,12 @@ void goal_to_reachCallback(const geometry_msgs::Point::ConstPtr& g) {
     goal_to_reach.x = g->x;
     goal_to_reach.y = g->y;
 
+}
+
+void detection_doneCallback(const geometry_msgs::Point::ConstPtr& person) {
+    // TODO sub to it
+    new_detection_done = true;
+    // detected_person = person->data;
 }
 
 void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {

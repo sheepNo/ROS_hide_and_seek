@@ -68,7 +68,6 @@ next_vertex_choice() {
 
     current_robot_moving = true;
     new_robot = false;
-
     new_loc = false;
 
     vertices_list[1000];
@@ -112,7 +111,7 @@ void update() {
     if (new_loc && new_robot) {
         new_robot = false;
         new_loc = false;
-        
+
 		nb_pts = 0;
 
         // if the robot is not moving then we can check if we are on the vertex we aimed for
