@@ -9,6 +9,7 @@
 #include <tf/transform_datatypes.h>
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
+#define max_dist_to_goal 0.5
 
 class decision {
 private:
@@ -18,6 +19,11 @@ private:
     // communication with person_detector or person_tracker
     ros::Publisher pub_goal_reached;
     ros::Subscriber sub_goal_to_reach;
+
+    ros::Publisher pub_person_reached;
+    ros::Subscriber sub_person_to_reach;
+
+    // ros::Subscriber sub_on_vertex;
 
     // communication with localization
     ros::Subscriber sub_amcl = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", localizationCallback);
@@ -44,11 +50,12 @@ private:
     float translation_done;
 
     bool new_goal_to_reach;//to check if a new /goal_to_reach is available or not
+    bool new_person_to_reach;//to check if a new /goal_to_reach is available or not
     bool new_loc;
     bool on_a_vertex;
     bool new_rotation_done;//to check if a new /rotation_done is available or not
     bool new_translation_done;//to check if a new /translation_done is available or not
-
+    geometry_msgs::Point person_to_reach;
     geometry_msgs::Point goal_to_reach;
     geometry_msgs::Point goal_reached;
 
@@ -60,6 +67,10 @@ decision() {
     pub_goal_reached = n.advertise<geometry_msgs::Point>("goal_reached", 1);
     sub_goal_to_reach = n.subscribe("goal_to_reach", 1, &decision::goal_to_reachCallback, this);
 
+    pub_person_reached = n.advertise<geometry_msgs::Point>("person_reached", 1);
+    sub_person_to_reach = n.subscribe("person_to_reach", 1, &decision::detection_doneCallback, this);
+    // sub_on_vertex = n.subscribe("on_vertex", 1, &decision::on_vertexCallback, this);
+
     // communication with rotation_action
     pub_rotation_to_do = n.advertise<std_msgs::Float32>("rotation_to_do", 0);
     sub_rotation_done = n.subscribe("rotation_done", 1, &decision::rotation_doneCallback, this);
@@ -70,6 +81,7 @@ decision() {
     sub_translation_done = n.subscribe("translation_done", 1, &decision::translation_doneCallback, this);
     cond_translation = false;
 
+    new_person_to_reach = false;
     new_goal_to_reach = false;
     new_loc = false;
     on_a_vertex = true;
@@ -92,16 +104,51 @@ decision() {
 void update() {
 
     // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
-    // TODO change the value of on_a_vertex with goal_reached
-    if (on_a_vertex) {
-        if (new_detection_done) {
-            new_detection_done = false;
+    if ( ( new_loc ) && (new_person_to_reach) && (distancePoints(goal_to_reach, robot_coordinates) < max_dist_to_goal) && ( !cond_translation ) && ( !cond_rotation ) ) {
+
+        ROS_INFO("(decision_node) /person_to_reach received: (%f, %f)", person_to_reach.x, person_to_reach.y);
+
+        // transform person_to_reach to relative coordinates
+        person_to_reach.x -= robot_coordinates.x;
+        person_to_reach.y -= robot_coordinates.y;
+
+        // we have a rotation and a translation to perform
+        // we compute the /translation_to_do
+        translation_to_do = sqrt( ( person_to_reach.x * person_to_reach.x ) + ( person_to_reach.y * person_to_reach.y ) );
+
+        if ( translation_to_do ) {
+            cond_translation = true;
+
+            //we compute the /rotation_to_do
+            cond_rotation = true;
+            rotation_to_do = acos( person_to_reach.x / translation_to_do );
+
+            if ( person_to_reach.y < 0 )
+                rotation_to_do *=-1;
+
+            rotation_to_do += robot_orientation;
+
+            //we first perform the /rotation_to_do
+            ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
+            std_msgs::Float32 msg_rotation_to_do;
+            //to complete
+            msg_rotation_to_do.data = rotation_to_do;
+            pub_rotation_to_do.publish(msg_rotation_to_do);
         }
-        on_a_vertex = false;
-        // TODO person detection
+        else {
+            geometry_msgs::Point msg_person_reached;
+            msg_person_reached.x = 0;
+            msg_person_reached.y = 0;
+
+            ROS_INFO("(decision_node) /person_reached (%f, %f)", msg_person_reached.x, msg_person_reached.y);
+            pub_person_reached.publish(msg_person_reached);
+        }
+
     }
 
-    if ( ( !on_a_vertex ) && ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
+
+        // new_detection_done = false;
 
         ROS_INFO("(decision_node) /goal_to_reach received: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
@@ -144,6 +191,7 @@ void update() {
     }
 
     new_goal_to_reach = false;
+    new_person_to_reach = false;
     new_loc = false;
 
     //we receive an ack from rotation_action_node. So, we perform the /translation_to_do
@@ -184,16 +232,18 @@ void update() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void goal_to_reachCallback(const geometry_msgs::Point::ConstPtr& g) {
 // process the goal received from moving_persons detector
-
     new_goal_to_reach = true;
     goal_to_reach.x = g->x;
     goal_to_reach.y = g->y;
 
 }
 
+
 void detection_doneCallback(const geometry_msgs::Point::ConstPtr& person) {
     // TODO sub to it
-    new_detection_done = true;
+    new_person_to_reach = true;
+    person_to_reach.x = person->x;
+    person_to_reach.y = person->y;
     // detected_person = person->data;
 }
 

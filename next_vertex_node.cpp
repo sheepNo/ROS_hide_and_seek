@@ -24,6 +24,7 @@ private:
     ros::Publisher pub_next_vertex;
     ros::Publisher pub_next_vertex_marker;
 
+
     // will be useful later for the decision node
     // ros::Publisher pub_on_vertex; TODO later for detection of persons once the robot is on a vertex
 
@@ -64,7 +65,7 @@ next_vertex_choice() {
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
     pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);
-    // pub_on_vertex = n.advertise<>("")
+    // pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
 
     current_robot_moving = true;
     new_robot = false;
