@@ -190,7 +190,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
     robot_coordinates.x = amcloutput->pose.pose.position.x;
     robot_coordinates.y = amcloutput->pose.pose.position.y;
     robot_coordinates.z = 0.0;
-    robot_orientation = tf::getYaw(amcloutput->pose.orientation)
+    robot_orientation = tf::getYaw(amcloutput->pose.pose.orientation)
 
     ROS_INFO("Robot_coordinates: (%f, %f)", robot_coordinates.x, robot_coordinates.y);
 
