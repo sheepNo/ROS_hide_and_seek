@@ -26,7 +26,7 @@ private:
     // ros::Subscriber sub_on_vertex;
 
     // communication with localization
-    ros::Subscriber sub_amcl = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", localizationCallback);
+    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1, &decision::localizationCallback, this);
     ros::Subscriber sub_robot_moving;
 
     // localization
@@ -255,7 +255,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
     robot_coordinates.x = amcloutput->pose.pose.position.x;
     robot_coordinates.y = amcloutput->pose.pose.position.y;
     robot_coordinates.z = 0.0;
-    robot_orientation = tf::getYaw(amcloutput->pose.pose.orientation)
+    robot_orientation = tf::getYaw(amcloutput->pose.pose.orientation);
 
     ROS_INFO("Robot_coordinates: (%f, %f)", robot_coordinates.x, robot_coordinates.y);
 

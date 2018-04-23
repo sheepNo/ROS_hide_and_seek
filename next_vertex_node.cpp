@@ -19,9 +19,10 @@ class next_vertex_choice {
 private:
     ros::NodeHandle n;
 
-    ros::Subscriber sub_amcl = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", localizationCallback);
+    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1, &next_vertex_choice::localizationCallback, this);
     ros::Subscriber sub_robot_moving;
-
+	ros::Subscriber sub_localization;
+	
     ros::Publisher pub_next_vertex;
     ros::Publisher pub_next_vertex_marker;
 
@@ -190,7 +191,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
     robot_coordinates.x = amcloutput->pose.pose.position.x;
     robot_coordinates.y = amcloutput->pose.pose.position.y;
     robot_coordinates.z = 0.0;
-    robot_orientation = tf::getYaw(amcloutput->pose.pose.orientation)
+    robot_orientation = tf::getYaw(amcloutput->pose.pose.orientation);
 
     ROS_INFO("Robot_coordinates: (%f, %f)", robot_coordinates.x, robot_coordinates.y);
 
