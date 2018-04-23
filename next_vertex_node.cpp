@@ -59,8 +59,8 @@ public:
 
 next_vertex_choice() {
 
-    sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex::robot_movingCallback, this);
-    sub_localization = n.subscribe("amcl", 1, &next_vertex::localizationCallback, this);
+    sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
+    sub_localization = n.subscribe("amcl", 1, &next_vertex_choice::localizationCallback, this);
 
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
