@@ -7,6 +7,7 @@
 #include "geometry_msgs/Point.h"
 #include "std_msgs/ColorRGBA.h"
 #include <cmath>
+#include <tf/transform_datatypes.h>
 #include "std_msgs/Bool.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
