@@ -82,12 +82,15 @@ decision() {
     cond_translation = false;
 
     new_person_to_reach = false;
-    new_goal_to_reach = false;
-    new_loc = false;
+    new_goal_to_reach = true;
     on_a_vertex = true;
+    new_loc = true;
     new_rotation_done = false;
     new_translation_done = false;
-
+	
+    robot_coordinates.x = 16.888;
+    robot_coordinates.y = -18.650;
+	
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will work at 10hz
     while (ros::ok()) {
@@ -232,6 +235,7 @@ void update() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void goal_to_reachCallback(const geometry_msgs::Point::ConstPtr& g) {
 // process the goal received from moving_persons detector
+	ROS_INFO("goal_to_reachCallback");
     new_goal_to_reach = true;
     goal_to_reach.x = g->x;
     goal_to_reach.y = g->y;
@@ -248,7 +252,7 @@ void detection_doneCallback(const geometry_msgs::Point::ConstPtr& person) {
 }
 
 void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {
-
+	ROS_INFO("localizationCallback");
     new_loc = true;
     ROS_INFO("New data of AMCL received");
     // TODO localizationCallback
@@ -264,7 +268,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
 
 void rotation_doneCallback(const std_msgs::Float32::ConstPtr& a) {
 // process the angle received from the rotation node
-
+	ROS_INFO("rotation_doneCallback");
     new_rotation_done = true;
     rotation_done = a->data;
 

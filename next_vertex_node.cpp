@@ -86,13 +86,15 @@ next_vertex_choice() {
     vertices_list[1].y = -16.331;
     vertices_list[1].z = 0.0;
 
-    vertices_list[3].x = 16.888;
-    vertices_list[3].y = -18.650;
+    vertices_list[2].x = 16.888;
+    vertices_list[2].y = -18.650;
+    vertices_list[2].z = 0.0;
+
+    vertices_list[3].x = 18.916;
+    vertices_list[3].y = -25.666;
     vertices_list[3].z = 0.0;
 
-    vertices_list[4].x = 18.916;
-    vertices_list[4].y = -25.666;
-    vertices_list[4].z = 0.0;
+    goal_to_reach = vertices_list[0];
 
     nb_vertices = 4; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
@@ -119,7 +121,7 @@ void update() {
     if (new_loc && new_robot) {
         new_robot = false;
         new_loc = false;
-
+		ROS_INFO("new_loc & new_robot");
 		nb_pts = 0;
 
         // if the robot is not moving then we can check if we are on the vertex we aimed for
@@ -155,10 +157,7 @@ void update_goal() {
 
     ROS_INFO("checking if the goal has been reached");
 
-    if (next_vertex == nb_vertices) {
-        ROS_INFO("the graph has been swept");
-        return;
-    }
+
 
     // update the current vertexs if the next vertex is close enough
     if (distancePoints(robot_coordinates, goal_to_reach) <= max_dist_to_goal) {
@@ -167,6 +166,11 @@ void update_goal() {
 
         current_vertex++;
         next_vertex++;
+
+    	if (next_vertex == nb_vertices) {
+        	ROS_INFO("the graph has been swept");
+        	return;
+   		}
 
         goal_to_reach = vertices_list[next_vertex];
         ROS_INFO("goal updated: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
