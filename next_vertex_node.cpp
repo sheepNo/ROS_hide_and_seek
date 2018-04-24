@@ -72,8 +72,8 @@ next_vertex_choice() {
     current_robot_moving = true;
     new_robot = false;
     new_loc = true;
-    robot_coordinates.x = 13.631;
-    robot_coordinates.y = -8.019;
+    robot_coordinates.x = 16.888;
+    robot_coordinates.y = -18.650;
 
     vertices_list[1000];
 
@@ -85,13 +85,15 @@ next_vertex_choice() {
     vertices_list[1].y = -16.331;
     vertices_list[1].z = 0.0;
 
-    vertices_list[3].x = 16.888;
-    vertices_list[3].y = -18.650;
-    vertices_list[3].z = 0.0;
+    vertices_list[2].x = 16.888;
+    vertices_list[2].y = -18.650;
+    vertices_list[2].z = 0.0;
 
-    vertices_list[4].x = 18.916;
-    vertices_list[4].y = -25.666;
-    vertices_list[4].z = 0.0;
+    vertices_list[3].x = 18.916;
+    vertices_list[3].y = -25.666;
+    vertices_list[3].z = 0.0;
+    
+    goal_to_reach = vertices_list[0];
 
     nb_vertices = 4; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
@@ -116,7 +118,7 @@ void update() {
     if (new_loc && new_robot) {
         new_robot = false;
         new_loc = false;
-
+		ROS_INFO("new_loc & new_robot");
 		nb_pts = 0;
 
         // if the robot is not moving then we can check if we are on the vertex we aimed for
@@ -125,7 +127,7 @@ void update() {
 
             // we only update if the robot was moving before. Otherwise it means everything is already up to date
             // TODO we may be able to merge the 2 ifs
-            if (previous_robot_moving) {
+            //if (previous_robot_moving) {
                 update_goal(); // check if we reached our goal and update the goal_to_reach
 
                 // TODO publish the goal to reach
@@ -133,7 +135,7 @@ void update() {
 
                 // DONE graphical display of the results
                 populateMarkerTopic();
-            }
+           // }
             //pub_next_vertex.publish(goal_to_reach);
         } else {
             ROS_INFO("robot is moving");
@@ -152,10 +154,7 @@ void update_goal() {
 
     ROS_INFO("checking if the goal has been reached");
 
-    if (next_vertex == nb_vertices) {
-        ROS_INFO("the graph has been swept");
-        return;
-    }
+
 
     // update the current vertexs if the next vertex is close enough
     if (distancePoints(robot_coordinates, goal_to_reach) <= max_dist_to_goal) {
@@ -165,6 +164,11 @@ void update_goal() {
         current_vertex++;
         next_vertex++;
 
+    	if (next_vertex == nb_vertices) {
+        	ROS_INFO("the graph has been swept");
+        	return;
+   		}
+   		
         goal_to_reach = vertices_list[next_vertex];
         ROS_INFO("goal updated: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
     }
