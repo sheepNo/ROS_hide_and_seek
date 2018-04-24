@@ -22,7 +22,7 @@ private:
     ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
     ros::Subscriber sub_robot_moving;
 	ros::Subscriber sub_localization;
-	
+
     ros::Publisher pub_next_vertex;
     ros::Publisher pub_next_vertex_marker;
 
@@ -74,6 +74,7 @@ next_vertex_choice() {
     new_loc = true;
     robot_coordinates.x = 13.631;
     robot_coordinates.y = -8.019;
+    robor_coordinates.z = 0.0;
 
     vertices_list[1000];
 
@@ -96,6 +97,8 @@ next_vertex_choice() {
     nb_vertices = 4; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
     next_vertex = 0;
+
+    goal_to_reach = vertices_list[next_vertex];
 
     // INFINITE LOOP TO COLLECT DATA
     // TODO
@@ -125,7 +128,7 @@ void update() {
 
             // we only update if the robot was moving before. Otherwise it means everything is already up to date
             // TODO we may be able to merge the 2 ifs
-            if (previous_robot_moving) {
+            // if (previous_robot_moving) {
                 update_goal(); // check if we reached our goal and update the goal_to_reach
 
                 // TODO publish the goal to reach
@@ -133,7 +136,7 @@ void update() {
 
                 // DONE graphical display of the results
                 populateMarkerTopic();
-            }
+            // }
             //pub_next_vertex.publish(goal_to_reach);
         } else {
             ROS_INFO("robot is moving");
