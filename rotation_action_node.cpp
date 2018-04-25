@@ -45,7 +45,7 @@ private:
 public:
 
 rotation_action() {
-
+	
     // communication with cmd_vel to command the mobile robot
     pub_cmd_vel = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
@@ -76,7 +76,7 @@ rotation_action() {
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void update() {
-
+//	ROS_INFO("nrtd:%d, nodom:%d",new_rotation_to_do, new_odom);
     // we receive a new /rotation_to_do
     if ( new_rotation_to_do && new_odom ) {
         new_rotation_to_do = false;
@@ -172,7 +172,7 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr& o) {
 }
 
 void rotation_to_doCallback(const std_msgs::Float32::ConstPtr & a) {
-
+	ROS_INFO("(rotation_action_node) received rotation_to_do");
     new_rotation_to_do = true;
     rotation_to_do = a->data;
 

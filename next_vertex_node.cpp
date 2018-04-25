@@ -61,6 +61,9 @@ public:
 
 next_vertex_choice() {
 
+    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
+
+
     sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
     // sub_localization = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
     sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
@@ -99,7 +102,7 @@ next_vertex_choice() {
 
     nb_vertices = 4; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
-    next_vertex = 0;
+    next_vertex = 1;
 
     goal_to_reach = vertices_list[next_vertex];
 
@@ -146,7 +149,7 @@ void update() {
         }
         ROS_INFO("\n");
     } else {
-        ROS_INFO("waiting for data");
+        //ROS_INFO("waiting for data");
     }
 } // update
 
@@ -212,7 +215,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
 void robot_movingCallback(const std_msgs::Bool::ConstPtr& state) {
 
     new_robot = true;
-    ROS_INFO("New data of robot_moving received");
+    //ROS_INFO("New data of robot_moving received");
     previous_robot_moving = current_robot_moving;
     current_robot_moving = state->data;
 
