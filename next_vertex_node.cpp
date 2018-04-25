@@ -66,7 +66,7 @@ next_vertex_choice() {
 
     sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
     // sub_localization = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
-    sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
+    sub_amcl = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
 
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
@@ -78,7 +78,7 @@ next_vertex_choice() {
     new_loc = true;
     robot_coordinates.x = 13.631;
     robot_coordinates.y = -8.019;
-    robor_coordinates.z = 0.0;
+    robot_coordinates.z = 0.0;
 
     vertices_list[1000];
 
@@ -156,7 +156,7 @@ void update() {
         }
         ROS_INFO("\n");
     } else {
-        //ROS_INFO("waiting for data");
+        ROS_INFO("waiting for data");
     }
 } // update
 
@@ -222,7 +222,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
 void robot_movingCallback(const std_msgs::Bool::ConstPtr& state) {
 
     new_robot = true;
-    //ROS_INFO("New data of robot_moving received");
+    ROS_INFO("New data of robot_moving received");
     previous_robot_moving = current_robot_moving;
     current_robot_moving = state->data;
 
