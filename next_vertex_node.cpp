@@ -12,7 +12,7 @@
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 // used for on_vertex decision
-#define max_dist_to_goal 0.5
+#define max_dist_to_goal 0.4
 
 class next_vertex_choice {
 
@@ -84,21 +84,33 @@ next_vertex_choice() {
     vertices_list[0].y = -18.354;
     vertices_list[0].z = 0.0;
 
-    vertices_list[1].x = 14.300;
-    vertices_list[1].y = -8.4731;
+    vertices_list[1].x = 15.150;
+    vertices_list[1].y = -13.573;
     vertices_list[1].z = 0.0;
-
-    vertices_list[2].x = 26.750;
-    vertices_list[2].y = -4.842;
+	
+    vertices_list[2].x = 13.500;
+    vertices_list[2].y = -8.8731;
     vertices_list[2].z = 0.0;
-
-    vertices_list[3].x = 13.751;
-    vertices_list[3].y = -8.408;
+    
+    vertices_list[3].x = 20.500;
+    vertices_list[3].y = -6.6731;
     vertices_list[3].z = 0.0;
+
+    vertices_list[4].x = 26.750;
+    vertices_list[4].y = -4.842;
+    vertices_list[4].z = 0.0;
+
+    vertices_list[5].x = 20.500;
+    vertices_list[5].y = -6.6731;
+    vertices_list[5].z = 0.0;
+    
+    vertices_list[6].x = 13.751;
+    vertices_list[6].y = -8.408;
+    vertices_list[6].z = 0.0;
 
     goal_to_reach = vertices_list[0];
 
-    nb_vertices = 4; // nb of vertices in the vertices_list list
+    nb_vertices = 7; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
     next_vertex = 0;
 

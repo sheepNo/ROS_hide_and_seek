@@ -118,7 +118,7 @@ decision() {
 void update() {
 
     // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
-    if ( ( new_loc ) && (new_person_to_reach) && (distancePoints(goal_to_reach, robot_coordinates) < max_dist_to_goal) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if ( ( new_loc ) && (new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
         ROS_INFO("(decision_node) /person_to_reach received: (%f, %f)", person_to_reach.x, person_to_reach.y);
 
@@ -157,6 +157,9 @@ void update() {
             ROS_INFO("(decision_node) /person_reached (%f, %f)", msg_person_reached.x, msg_person_reached.y);
             pub_person_reached.publish(msg_person_reached);
         }
+        
+		new_person_to_reach = false;
+        new_loc = false;
 
     }
 
@@ -167,7 +170,7 @@ void update() {
         //ROS_INFO("DEBUG MSG: new_goal_to_reach");
     }
 
-    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) && (!new_person_to_reach) ) {
 
         // new_detection_done = false;
 
