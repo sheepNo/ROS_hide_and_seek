@@ -24,10 +24,7 @@ private:
     ros::Subscriber sub_person_to_reach;
 
     // ros::Subscriber sub_on_vertex;
-
-    // communication with localization
-    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &decision::localizationCallback, this);
-    ros::Subscriber sub_robot_moving;
+	ros::Subscriber sub_robot_moving;
 
     // localization
     geometry_msgs::Point robot_coordinates;
@@ -63,6 +60,10 @@ public:
 
 decision() {
 
+    // communication with localization
+    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &decision::localizationCallback, this);
+    ros::Subscriber sub_robot_moving;
+
     // communication with moving_persons_detector or person_tracker
     pub_goal_reached = n.advertise<geometry_msgs::Point>("goal_reached", 1);
     sub_goal_to_reach = n.subscribe("goal_to_reach", 1, &decision::goal_to_reachCallback, this);
@@ -90,6 +91,9 @@ decision() {
 	
     robot_coordinates.x = 16.888;
     robot_coordinates.y = -18.650;
+    
+    goal_to_reach.x = 14.733000;
+    goal_to_reach.y = -11.351000;
 	
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will work at 10hz
@@ -132,7 +136,7 @@ void update() {
             rotation_to_do += robot_orientation;
 
             //we first perform the /rotation_to_do
-            ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
+            //ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
             std_msgs::Float32 msg_rotation_to_do;
             //to complete
             msg_rotation_to_do.data = rotation_to_do;
@@ -164,6 +168,7 @@ void update() {
         translation_to_do = sqrt( ( goal_to_reach.x * goal_to_reach.x ) + ( goal_to_reach.y * goal_to_reach.y ) );
 
         if ( translation_to_do ) {
+        	
             cond_translation = true;
 
             //we compute the /rotation_to_do
@@ -180,12 +185,14 @@ void update() {
             std_msgs::Float32 msg_rotation_to_do;
             //to complete
             msg_rotation_to_do.data = rotation_to_do;
+            ROS_INFO("msg_rotation_to_do : %f", msg_rotation_to_do.data);
             pub_rotation_to_do.publish(msg_rotation_to_do);
+            
 	    }
         else {
             geometry_msgs::Point msg_goal_reached;
-            msg_goal_reached.x = 0;
-            msg_goal_reached.y = 0;
+            msg_goal_reached.x = goal_to_reach.x;
+            msg_goal_reached.y = goal_to_reach.y;
 
             ROS_INFO("(decision_node) /goal_reached (%f, %f)", msg_goal_reached.x, msg_goal_reached.y);
             pub_goal_reached.publish(msg_goal_reached);
@@ -239,6 +246,7 @@ void goal_to_reachCallback(const geometry_msgs::Point::ConstPtr& g) {
     new_goal_to_reach = true;
     goal_to_reach.x = g->x;
     goal_to_reach.y = g->y;
+    ROS_INFO("gtr_callb %f %f ", goal_to_reach.x, goal_to_reach.y);
 
 }
 
