@@ -66,7 +66,7 @@ decision() {
 
     // communication with moving_persons_detector or person_tracker
     pub_goal_reached = n.advertise<geometry_msgs::Point>("goal_reached", 1);
-    sub_goal_to_reach = n.subscribe("goal_to_reach", 10, &decision::goal_to_reachCallback, this);
+    sub_goal_to_reach = n.subscribe("goal_to_reach", 1, &decision::goal_to_reachCallback, this);
 
     pub_person_reached = n.advertise<geometry_msgs::Point>("person_reached", 1);
     sub_person_to_reach = n.subscribe("person_to_reach", 1, &decision::detection_doneCallback, this);
@@ -83,21 +83,24 @@ decision() {
     cond_translation = false;
 
     new_person_to_reach = false;
-    new_goal_to_reach = true;
+    new_goal_to_reach = false;
     on_a_vertex = true;
-    new_loc = true;
+    new_loc = false;
     new_rotation_done = false;
     new_translation_done = false;
-
-    robot_coordinates.x = 16.888;
-    robot_coordinates.y = -18.650;
+    
+    //robot_coordinates.x = 13.631;
+    //robot_coordinates.y = -8.019;
+    //robot_coordinates.z = 0.0;
+    //robot_coordinates.x = 16.888;
+    //robot_coordinates.y = -18.650;
 
     //goal_to_reach.x = 14.733000;
     //goal_to_reach.y = -11.351000;
 
 
-    goal_to_reach.x = 1.000000;
-    goal_to_reach.y = 1,000000;
+    //goal_to_reach.x = 1.000000;
+    //goal_to_reach.y = 1,000000;
 
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will work at 10hz
@@ -137,7 +140,7 @@ void update() {
             if ( person_to_reach.y < 0 )
                 rotation_to_do *=-1;
 
-            rotation_to_do += robot_orientation;
+            rotation_to_do -= robot_orientation;
 
             //we first perform the /rotation_to_do
             //ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
@@ -158,10 +161,10 @@ void update() {
     }
 
     if (new_loc) {
-        ROS_INFO("DEBUG MSG: new_lock");
+        //ROS_INFO("DEBUG MSG: new_lock");
     }
     if (new_goal_to_reach) {
-        ROS_INFO("DEBUG MSG: new_goal_to_reach");
+        //ROS_INFO("DEBUG MSG: new_goal_to_reach");
     }
 
     if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
@@ -171,8 +174,8 @@ void update() {
         ROS_INFO("(decision_node) /goal_to_reach received: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
         // transform goal_to_reach to relative coordinates
-        goal_to_reach.x -= robot_coordinates.x;
-        goal_to_reach.y -= robot_coordinates.y;
+       goal_to_reach.x -= robot_coordinates.x;
+       goal_to_reach.y -= robot_coordinates.y;
 
         // we have a rotation and a translation to perform
         // we compute the /translation_to_do
@@ -184,12 +187,12 @@ void update() {
 
             //we compute the /rotation_to_do
             cond_rotation = true;
-            rotation_to_do = acos( goal_to_reach.x / translation_to_do );
+            rotation_to_do = acos( (goal_to_reach.x) / translation_to_do );
 
             if ( goal_to_reach.y < 0 )
                 rotation_to_do *=-1;
 
-            rotation_to_do += robot_orientation;
+            rotation_to_do -= robot_orientation;
 
             //we first perform the /rotation_to_do
             ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
@@ -274,7 +277,7 @@ void detection_doneCallback(const geometry_msgs::Point::ConstPtr& person) {
 }
 
 void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {
-	ROS_INFO("localizationCallback");
+	//ROS_INFO("localizationCallback");
     new_loc = true;
     ROS_INFO("New data of AMCL received");
     // TODO localizationCallback

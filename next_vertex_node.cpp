@@ -66,32 +66,34 @@ next_vertex_choice() {
 
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
-    pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 10);
+    pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);
     // pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
 
-    current_robot_moving = true;
+    current_robot_moving = false;
     new_robot = false;
-    new_loc = true;
-    robot_coordinates.x = 13.631;
-    robot_coordinates.y = -8.019;
-    robot_coordinates.z = 0.0;
+    new_loc = false;
+    
+    //robot_coordinates.x = 13.631;
+    //robot_coordinates.y = -8.019;
+    //robot_coordinates.z = 0.0;
 
     vertices_list[1000];
 
-    vertices_list[0].x = 14.733;
-    vertices_list[0].y = -11.351;
+ 
+    vertices_list[0].x = 16.672;
+    vertices_list[0].y = -18.354;
     vertices_list[0].z = 0.0;
 
-    vertices_list[1].x = 15.888;
-    vertices_list[1].y = -16.331;
+    vertices_list[1].x = 14.300;
+    vertices_list[1].y = -8.4731;
     vertices_list[1].z = 0.0;
 
-    vertices_list[2].x = 16.888;
-    vertices_list[2].y = -18.650;
+    vertices_list[2].x = 26.750;
+    vertices_list[2].y = -4.842;
     vertices_list[2].z = 0.0;
 
-    vertices_list[3].x = 18.916;
-    vertices_list[3].y = -25.666;
+    vertices_list[3].x = 13.751;
+    vertices_list[3].y = -8.408;
     vertices_list[3].z = 0.0;
 
     goal_to_reach = vertices_list[0];
@@ -118,21 +120,22 @@ next_vertex_choice() {
 void update() {
     //debug
     if (new_loc) {
-        ROS_INFO("DEBUG MSG: new_loc");
+        //ROS_INFO("DEBUG MSG: new_loc");
     }
     if (new_robot) {
-        ROS_INFO("DEBUG MSG: new_robot");
+        //ROS_INFO("DEBUG MSG: new_robot");
     }
 
     // we wait for new data of the localization_node and of the robot_moving_node to perform loc processing
     if (new_robot && new_loc) {
-        new_robot = false;
-        new_loc = false;
+
 		ROS_INFO("new_loc & new_robot");
 		nb_pts = 0;
 
         // if the robot is not moving then we can check if we are on the vertex we aimed for
         if (!current_robot_moving) {
+            new_robot = false;
+            new_loc = false;
             ROS_INFO("robot is not moving");
 
             // we only update if the robot was moving before. Otherwise it means everything is already up to date
@@ -152,7 +155,7 @@ void update() {
         }
         ROS_INFO("\n");
     } else {
-        ROS_INFO("waiting for data");
+        //ROS_INFO("waiting for data");
     }
 } // update
 
@@ -164,7 +167,7 @@ void update_goal() {
 
     ROS_INFO("checking if the goal has been reached");
 
-
+	ROS_INFO("Distance to goal : %f",distancePoints(robot_coordinates, goal_to_reach));
 
     // update the current vertexs if the next vertex is close enough
     if (distancePoints(robot_coordinates, goal_to_reach) <= max_dist_to_goal) {
@@ -180,11 +183,14 @@ void update_goal() {
    		}
 
         goal_to_reach = vertices_list[next_vertex];
-        ROS_INFO("goal updated: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
+        ROS_INFO("goal updated ////////////////////////////////////////////////");
     }
-    ROS_INFO("goal not reached");
-    ROS_INFO("goal not updated");
-
+    else {
+    	ROS_INFO("goal not reached");
+    	ROS_INFO("goal not updated");
+	}
+	ROS_INFO("goal: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
+    
     // the next goal is green TODO
     display[nb_pts].x = goal_to_reach.x;
     display[nb_pts].y = goal_to_reach.y;
@@ -218,7 +224,7 @@ void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstP
 void robot_movingCallback(const std_msgs::Bool::ConstPtr& state) {
 
     new_robot = true;
-    ROS_INFO("New data of robot_moving received");
+    //ROS_INFO("New data of robot_moving received");
     previous_robot_moving = current_robot_moving;
     current_robot_moving = state->data;
 
