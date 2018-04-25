@@ -61,7 +61,7 @@ public:
 
 next_vertex_choice() {
 
-    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
+    ros::Subscriber sub_amcl = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
 
 
     sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
@@ -102,7 +102,7 @@ next_vertex_choice() {
 
     nb_vertices = 4; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
-    next_vertex = 1;
+    next_vertex = 0;
 
     goal_to_reach = vertices_list[next_vertex];
 
@@ -120,6 +120,13 @@ next_vertex_choice() {
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 void update() {
+    //debug
+    if (new_loc) {
+        ROS_INFO("DEBUG MSG: new_lock");
+    }
+    if (new_robot) {
+        ROS_INFO("DEBUG MSG: new_robot");
+    }
 
     // we wait for new data of the localization_node and of the robot_moving_node to perform loc processing
     if (new_loc && new_robot) {

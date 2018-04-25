@@ -61,7 +61,7 @@ public:
 decision() {
 
     // communication with localization
-    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &decision::localizationCallback, this);
+    ros::Subscriber sub_amcl = n.subscribe("amcl", 1000, &decision::localizationCallback, this);
     ros::Subscriber sub_robot_moving;
 
     // communication with moving_persons_detector or person_tracker
@@ -153,6 +153,13 @@ void update() {
 
     }
 
+    if (new_loc) {
+        ROS_INFO("DEBUG MSG: new_lock");
+    }
+    if (new_goal_to_reach) {
+        ROS_INFO("DEBUG MSG: new_goal_to_reach");
+    }
+
     if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
         // new_detection_done = false;
@@ -198,8 +205,8 @@ void update() {
             pub_goal_reached.publish(msg_goal_reached);
         }
 
-    new_goal_to_reach = false;
-    new_loc = false;
+        new_goal_to_reach = false;
+        new_loc = false;
 
     }
 
