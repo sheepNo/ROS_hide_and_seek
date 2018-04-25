@@ -19,9 +19,9 @@ class next_vertex_choice {
 private:
     ros::NodeHandle n;
 
-    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
     ros::Subscriber sub_robot_moving;
-	ros::Subscriber sub_localization;
+	// ros::Subscriber sub_localization;
+    ros::Subscriber sub_amcl;
 
     ros::Publisher pub_next_vertex;
     ros::Publisher pub_next_vertex_marker;
@@ -62,7 +62,8 @@ public:
 next_vertex_choice() {
 
     sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
-    sub_localization = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
+    // sub_localization = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
+    sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
 
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
