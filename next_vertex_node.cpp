@@ -61,12 +61,12 @@ public:
 
 next_vertex_choice() {
 
-    ros::Subscriber sub_amcl = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
+    ros::Subscriber sub_amcl;
 
 
     sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
     // sub_localization = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
-    sub_amcl = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
+    sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
 
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
@@ -122,14 +122,14 @@ next_vertex_choice() {
 void update() {
     //debug
     if (new_loc) {
-        ROS_INFO("DEBUG MSG: new_lock");
+        ROS_INFO("DEBUG MSG: new_loc");
     }
     if (new_robot) {
         ROS_INFO("DEBUG MSG: new_robot");
     }
 
     // we wait for new data of the localization_node and of the robot_moving_node to perform loc processing
-    if (new_loc && new_robot) {
+    if (new_robot && new_loc) {
         new_robot = false;
         new_loc = false;
 		ROS_INFO("new_loc & new_robot");
