@@ -69,7 +69,8 @@ next_vertex_choice() {
     pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 10);
     // pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
 
-    current_robot_moving = true;
+    previous_robot_moving = true;
+    current_robot_moving = false;
     new_robot = false;
     new_loc = true;
     robot_coordinates.x = 13.631;

@@ -115,7 +115,7 @@ decision() {
 void update() {
 
     // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
-    if ( ( new_loc ) && (new_person_to_reach) && (distancePoints(goal_to_reach, robot_coordinates) < max_dist_to_goal) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if ( ( new_loc ) && (new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
         ROS_INFO("(decision_node) /person_to_reach received: (%f, %f)", person_to_reach.x, person_to_reach.y);
 
@@ -155,6 +155,9 @@ void update() {
             pub_person_reached.publish(msg_person_reached);
         }
 
+        new_person_to_reach = false;
+        new_loc = false;
+
     }
 
     if (new_loc) {
@@ -164,7 +167,7 @@ void update() {
         ROS_INFO("DEBUG MSG: new_goal_to_reach");
     }
 
-    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
+    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) && (!new_person_to_reach)) {
 
         // new_detection_done = false;
 
@@ -189,7 +192,7 @@ void update() {
             if ( goal_to_reach.y < 0 )
                 rotation_to_do *=-1;
 
-            rotation_to_do += robot_orientation;
+            rotation_to_do -= robot_orientation;
 
             //we first perform the /rotation_to_do
             ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
@@ -214,9 +217,7 @@ void update() {
 
     }
 
-
-    new_person_to_reach = false;
-
+    // new_person_to_reach = false;
 
     //we receive an ack from rotation_action_node. So, we perform the /translation_to_do
     if ( new_rotation_done ) {
