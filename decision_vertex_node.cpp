@@ -62,7 +62,7 @@ decision() {
 
     // communication with localization
     ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &decision::localizationCallback, this);
-    ros::Subscriber sub_robot_moving;
+    // ros::Subscriber sub_robot_moving;
 
     // communication with moving_persons_detector or person_tracker
     pub_goal_reached = n.advertise<geometry_msgs::Point>("goal_reached", 1);
