@@ -88,13 +88,13 @@ decision() {
     new_loc = true;
     new_rotation_done = false;
     new_translation_done = false;
-	
+
     robot_coordinates.x = 16.888;
     robot_coordinates.y = -18.650;
-    
+
     goal_to_reach.x = 14.733000;
     goal_to_reach.y = -11.351000;
-	
+
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will work at 10hz
     while (ros::ok()) {
@@ -168,7 +168,7 @@ void update() {
         translation_to_do = sqrt( ( goal_to_reach.x * goal_to_reach.x ) + ( goal_to_reach.y * goal_to_reach.y ) );
 
         if ( translation_to_do ) {
-        	
+
             cond_translation = true;
 
             //we compute the /rotation_to_do
@@ -187,7 +187,7 @@ void update() {
             msg_rotation_to_do.data = rotation_to_do;
             ROS_INFO("msg_rotation_to_do : %f", msg_rotation_to_do.data);
             pub_rotation_to_do.publish(msg_rotation_to_do);
-            
+
 	    }
         else {
             geometry_msgs::Point msg_goal_reached;
@@ -198,11 +198,14 @@ void update() {
             pub_goal_reached.publish(msg_goal_reached);
         }
 
+    new_goal_to_reach = false;
+    new_loc = false;
+
     }
 
-    new_goal_to_reach = false;
+
     new_person_to_reach = false;
-    new_loc = false;
+
 
     //we receive an ack from rotation_action_node. So, we perform the /translation_to_do
     if ( new_rotation_done ) {
