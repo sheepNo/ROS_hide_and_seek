@@ -61,7 +61,7 @@ public:
 decision() {
 
     // communication with localization
-    ros::Subscriber sub_amcl = n.subscribe("amcl_pose", 1000, &decision::localizationCallback, this);
+    ros::Subscriber sub_amcl = n.subscribe("amcl", 1000, &decision::localizationCallback, this);
     ros::Subscriber sub_robot_moving;
 
     // communication with moving_persons_detector or person_tracker
@@ -92,8 +92,12 @@ decision() {
     robot_coordinates.x = 16.888;
     robot_coordinates.y = -18.650;
 
-    goal_to_reach.x = 14.733000;
-    goal_to_reach.y = -11.351000;
+    //goal_to_reach.x = 14.733000;
+    //goal_to_reach.y = -11.351000;
+
+
+    goal_to_reach.x = 1.000000;
+    goal_to_reach.y = 1,000000;
 
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will work at 10hz
