@@ -113,7 +113,8 @@ void update() {
             error = closest_obstacle.x;
 
         bool obstacle_detected = ( fabs(closest_obstacle.x) < security_distance );
-
+		//bool obstacle_detected = false;
+		
         if ( obstacle_detected )
             ROS_WARN("obstacle detected: (%f, %f)", closest_obstacle.x, closest_obstacle.y);
 

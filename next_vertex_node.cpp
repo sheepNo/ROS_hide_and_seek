@@ -79,7 +79,7 @@ next_vertex_choice() {
 
     vertices_list[1000];
 
- 
+/* 
     vertices_list[0].x = 16.672;
     vertices_list[0].y = -18.354;
     vertices_list[0].z = 0.0;
@@ -107,10 +107,17 @@ next_vertex_choice() {
     vertices_list[6].x = 13.751;
     vertices_list[6].y = -8.408;
     vertices_list[6].z = 0.0;
+*/
+
+	vertices_list[0].x = 26.260;
+	vertices_list[0].y = -4.786;
+	
+	vertices_list[1].x = 20.404;
+	vertices_list[1].y = -6.653;
 
     goal_to_reach = vertices_list[0];
 
-    nb_vertices = 7; // nb of vertices in the vertices_list list
+    nb_vertices = 2; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
     next_vertex = 0;
 
@@ -191,7 +198,9 @@ void update_goal() {
 
     	if (next_vertex == nb_vertices) {
         	ROS_INFO("the graph has been swept");
-        	return;
+        	next_vertex=0;
+        	current_vertex = -1;
+        	//return;
    		}
 
         goal_to_reach = vertices_list[next_vertex];
