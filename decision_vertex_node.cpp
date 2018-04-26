@@ -169,7 +169,7 @@ void update() {
         //ROS_INFO("DEBUG MSG: new_goal_to_reach");
     }
 
-    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) && (!new_person_to_reach) ) {
+    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
         // new_detection_done = false;
 
