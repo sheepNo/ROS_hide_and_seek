@@ -155,14 +155,14 @@ void update() {
             // we only update if the robot was moving before. Otherwise it means everything is already up to date
             // TODO we may be able to merge the 2 ifs
             // if (previous_robot_moving) {
-                update_goal(); // check if we reached our goal and update the goal_to_reach
+            update_goal(); // check if we reached our goal and update the goal_to_reach
 
-                // TODO publish the goal to reach
-                pub_next_vertex.publish(goal_to_reach);
-                pub_on_vertex.publish(on_vertex);
+            // TODO publish the goal to reach
+            pub_next_vertex.publish(goal_to_reach);
+            pub_on_vertex.publish(on_vertex);
 
-                // DONE graphical display of the results
-                populateMarkerTopic();
+            // DONE graphical display of the results
+            populateMarkerTopic();
             // }
             //pub_next_vertex.publish(goal_to_reach);
         } else {

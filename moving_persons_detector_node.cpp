@@ -94,7 +94,7 @@ moving_persons_detector() {
     sub_on_vertex = n.subscribe("on_vertex", 1, &moving_persons_detector::on_vertexCallback, this);
 
     pub_moving_persons_detector_marker = n.advertise<visualization_msgs::Marker>("moving_persons_detector", 1); // Preparing a topic to publish our results. This will be used by the visualization tool rviz
-    pub_moving_persons_detector = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);     // Preparing a topic to publish the goal to reach.
+    pub_moving_persons_detector = n.advertise<geometry_msgs::Point>("person_to_reach", 1);     // Preparing a topic to publish the goal to reach.
 
     current_robot_moving = true;
     new_laser = false;
@@ -179,13 +179,6 @@ void detect_motion() {
             dynamic[loop] = 0;//else its static
         }
 
-
-
-
-
-
-
-
     int sum = 0;
 
     for (int loop=0; loop<nb_beams; loop++)
@@ -193,11 +186,6 @@ void detect_motion() {
         sum += dynamic[loop];
 
     ROS_INFO("we have %i dynamic points", sum);
-
-
-
-
-
 
 
 }//detect_motion
