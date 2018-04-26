@@ -16,7 +16,7 @@ private:
 
     ros::NodeHandle n;
 
-    // communication with person_detector or person_tracker
+    // communication with person_detector or person_tracke
     ros::Publisher pub_goal_reached;
     ros::Subscriber sub_goal_to_reach;
 
