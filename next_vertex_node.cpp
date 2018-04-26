@@ -36,7 +36,7 @@ private:
     int current_vertex; // index of the current/previous vertex
     int next_vertex;
 
-    bool on_a_vertex;
+    bool on_vertex;
 
     // coordinates of the robot
     geometry_msgs::Point robot_coordinates;
@@ -68,7 +68,7 @@ next_vertex_choice() {
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
     pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);
-    pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
+    pub_on_vertex = n.advertise<std_msgs::Bool>("on_vertex", 1);
 
     previous_robot_moving = true;
     current_robot_moving = false;
@@ -166,7 +166,10 @@ void update() {
 
             // TODO publish the goal to reach
             pub_next_vertex.publish(goal_to_reach);
-            pub_on_vertex.publish(on_vertex);
+            std_msgs::Bool msg_ov;
+            msg_ov.data = on_vertex;
+            
+            pub_on_vertex.publish(msg_ov);
 
             // DONE graphical display of the results
             populateMarkerTopic();
@@ -185,23 +188,20 @@ void update() {
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void update_goal() {
 
-    on_a_vertex = false;
-
     ROS_INFO("checking if the goal has been reached");
 
 	ROS_INFO("Distance to goal : %f",distancePoints(robot_coordinates, goal_to_reach));
 
-    on_vertex = 0;
+    on_vertex = false;
 
     // update the current vertexs if the next vertex is close enough
     if (distancePoints(robot_coordinates, goal_to_reach) <= max_dist_to_goal) {
         ROS_INFO("goal reached");
-        on_a_vertex = true;
 
         current_vertex++;
         next_vertex++;
 
-        on_vertex = 1;
+        on_vertex = true;
 
     	if (next_vertex == nb_vertices) {
         	ROS_INFO("the graph has been swept");
