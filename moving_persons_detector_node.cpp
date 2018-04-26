@@ -143,7 +143,7 @@ void update() {
             populateMarkerTopic();
 
             //to publish the goal_to_reach
-            if (new_on_vertex && on_vertex) {
+            if (nb_moving_legs_detected) {
                 pub_moving_persons_detector.publish(goal_to_reach);
                 new_on_vertex = false;
             }

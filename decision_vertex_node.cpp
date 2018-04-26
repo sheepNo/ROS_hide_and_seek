@@ -118,13 +118,13 @@ decision() {
 void update() {
 
     // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
-    if ( ( new_loc ) && (new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) && (person_to_reach.x == 0.0 && person_to_reach.y == 0.0)) {
+    if ((new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) && (person_to_reach.x != 0.0 && person_to_reach.y != 0.0)) {
 
         ROS_INFO("(decision_node) /person_to_reach received: (%f, %f)", person_to_reach.x, person_to_reach.y);
 
         // transform person_to_reach to relative coordinates
-        person_to_reach.x -= robot_coordinates.x;
-        person_to_reach.y -= robot_coordinates.y;
+        //person_to_reach.x -= robot_coordinates.x;
+        //person_to_reach.y -= robot_coordinates.y;
 
         // we have a rotation and a translation to perform
         // we compute the /translation_to_do
