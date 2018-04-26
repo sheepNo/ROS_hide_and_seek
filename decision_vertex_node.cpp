@@ -88,7 +88,7 @@ decision() {
     new_loc = false;
     new_rotation_done = false;
     new_translation_done = false;
-    
+
     //robot_coordinates.x = 13.631;
     //robot_coordinates.y = -8.019;
     //robot_coordinates.z = 0.0;
@@ -158,9 +158,8 @@ void update() {
             pub_person_reached.publish(msg_person_reached);
         }
 
-        new_person_to_reach = false;
+		// new_person_to_reach = false;
         new_loc = false;
-
     }
 
     if (new_loc) {
@@ -170,7 +169,7 @@ void update() {
         //ROS_INFO("DEBUG MSG: new_goal_to_reach");
     }
 
-    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) && (!new_person_to_reach)) {
+    if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) && (!new_person_to_reach) ) {
 
         // new_detection_done = false;
 
@@ -275,6 +274,7 @@ void detection_doneCallback(const geometry_msgs::Point::ConstPtr& person) {
     person_to_reach.x = person->x;
     person_to_reach.y = person->y;
     // detected_person = person->data;
+    ROS_INFO("persontr_callb %f %f ", person_to_reach.x, person_to_reach.y);
 }
 
 void localizationCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& amcloutput) {

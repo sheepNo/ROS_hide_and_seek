@@ -12,7 +12,7 @@
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 // used for on_vertex decision
-#define max_dist_to_goal 0.5
+#define max_dist_to_goal 0.4
 
 class next_vertex_choice {
 
@@ -27,7 +27,8 @@ private:
     ros::Publisher pub_next_vertex_marker;
 
     // will be useful later for the decision node
-    // ros::Publisher pub_on_vertex; TODO later for detection of persons once the robot is on a vertex
+    ros::Publisher pub_on_vertex;
+    //TODO later for detection of persons once the robot is on a vertex
 
     // list of vertices we have to visit
     geometry_msgs::Point vertices_list[1000];
@@ -67,7 +68,7 @@ next_vertex_choice() {
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
     pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);
-    // pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
+    pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
 
     previous_robot_moving = true;
     current_robot_moving = false;
@@ -85,21 +86,33 @@ next_vertex_choice() {
     vertices_list[0].y = -18.354;
     vertices_list[0].z = 0.0;
 
-    vertices_list[1].x = 14.300;
-    vertices_list[1].y = -8.4731;
+    vertices_list[1].x = 15.150;
+    vertices_list[1].y = -13.573;
     vertices_list[1].z = 0.0;
 
-    vertices_list[2].x = 26.750;
-    vertices_list[2].y = -4.842;
+    vertices_list[2].x = 13.500;
+    vertices_list[2].y = -8.8731;
     vertices_list[2].z = 0.0;
 
-    vertices_list[3].x = 13.751;
-    vertices_list[3].y = -8.408;
+    vertices_list[3].x = 20.500;
+    vertices_list[3].y = -6.6731;
     vertices_list[3].z = 0.0;
+
+    vertices_list[4].x = 26.750;
+    vertices_list[4].y = -4.842;
+    vertices_list[4].z = 0.0;
+
+    vertices_list[5].x = 20.500;
+    vertices_list[5].y = -6.6731;
+    vertices_list[5].z = 0.0;
+
+    vertices_list[6].x = 13.751;
+    vertices_list[6].y = -8.408;
+    vertices_list[6].z = 0.0;
 
     goal_to_reach = vertices_list[0];
 
-    nb_vertices = 4; // nb of vertices in the vertices_list list
+    nb_vertices = 7; // nb of vertices in the vertices_list list
     current_vertex = -1; // index of the current/previous vertex probably useless
     next_vertex = 0;
 
@@ -146,6 +159,7 @@ void update() {
 
                 // TODO publish the goal to reach
                 pub_next_vertex.publish(goal_to_reach);
+                pub_on_vertex.publish(on_vertex);
 
                 // DONE graphical display of the results
                 populateMarkerTopic();
@@ -170,6 +184,8 @@ void update_goal() {
 
 	ROS_INFO("Distance to goal : %f",distancePoints(robot_coordinates, goal_to_reach));
 
+    on_vertex = 0;
+
     // update the current vertexs if the next vertex is close enough
     if (distancePoints(robot_coordinates, goal_to_reach) <= max_dist_to_goal) {
         ROS_INFO("goal reached");
@@ -177,6 +193,8 @@ void update_goal() {
 
         current_vertex++;
         next_vertex++;
+
+        on_vertex = 1;
 
     	if (next_vertex == nb_vertices) {
         	ROS_INFO("the graph has been swept");

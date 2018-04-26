@@ -33,6 +33,7 @@ private:
 
     ros::Subscriber sub_scan;
     ros::Subscriber sub_robot_moving;
+    ros::Subscriber sub_on_vertex;
 
     ros::Publisher pub_moving_persons_detector;
     ros::Publisher pub_moving_persons_detector_marker;
@@ -81,7 +82,7 @@ private:
     bool new_laser;//to check if new data of laser is available or not
     bool new_robot;//to check if new data of robot_moving is available or not
 
-    
+
 
 
 public:
@@ -90,6 +91,7 @@ moving_persons_detector() {
 
     sub_scan = n.subscribe("scan", 1, &moving_persons_detector::scanCallback, this);
     sub_robot_moving = n.subscribe("robot_moving", 1, &moving_persons_detector::robot_movingCallback, this);
+    sub_on_vertex = n.subscribe("on_vertex", 1, &moving_persons_detector::on_vertexCallback, this);
 
     pub_moving_persons_detector_marker = n.advertise<visualization_msgs::Marker>("moving_persons_detector", 1); // Preparing a topic to publish our results. This will be used by the visualization tool rviz
     pub_moving_persons_detector = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);     // Preparing a topic to publish the goal to reach.
@@ -138,7 +140,10 @@ void update() {
             populateMarkerTopic();
 
             //to publish the goal_to_reach
-            pub_moving_persons_detector.publish(goal_to_reach);
+            if (new_on_vertex && on_vertex==1) {
+                pub_moving_persons_detector.publish(goal_to_reach);
+                new_on_vertex = false;
+            }
         }
         else
             ROS_INFO("robot is moving");
@@ -175,18 +180,18 @@ void detect_motion() {
         }
 
 
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     int sum = 0;
-    
+
     for (int loop=0; loop<nb_beams; loop++)
-        
+
         sum += dynamic[loop];
-        
+
     ROS_INFO("we have %i dynamic points", sum);
 
 
@@ -214,7 +219,7 @@ void perform_clustering() {
     cluster_start[0] = 0;// the first hit is the start of the first cluster
 
     cluster[0] = 0;// the first hit belongs to the first cluster
-    
+
     int nb_dynamic = 0;// to count the number of hits of the current cluster that are dynamic
 
     for (int loop=1; loop<nb_beams; loop++)//loop over all the hits
@@ -258,7 +263,7 @@ void perform_clustering() {
 
     //Dont forget to update the different information for the last cluster
     //...
-    
+
     /*1/ we end the current cluster, so we update:
       - cluster_end to store the last hit of the current cluster
       - cluster_dynamic to store the percentage of hits of the current cluster that are dynamic
@@ -292,7 +297,7 @@ void detect_moving_legs() {
     nb_moving_legs_detected = 0;
 
     for (int loop=0; loop<nb_cluster; loop++) {//loop over all the clusters
-        
+
         if (cluster_size[loop] > leg_size_min && cluster_size[loop] < leg_size_max && cluster_dynamic[loop] > dynamic_threshold) {
             // then the current cluster is a moving leg
             // we update the moving_leg_detected table to store the middle of the moving leg
@@ -328,7 +333,7 @@ void detect_moving_persons() {
 // a moving person has two moving legs located at less than "legs_distance_max" one from the other
 
     ROS_INFO("detecting moving persons");
-    
+
     ROS_INFO("(moving_persons_detector_node) /person coordinates (%f, %f)", person_coordinates.x, person_coordinates.y);
 
     nb_moving_persons_detected = 0;
@@ -377,6 +382,12 @@ void detect_moving_persons() {
 //CALLBACKS
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+void on_vertexCallback(const std_msgs::Float32::ConstPtr& ov) {
+    ROS_INFO("on_vertexCallback");
+    new_on_vertex = true;
+    on_vertex = ov->data;
+}
+
 void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan) {
 
     new_laser = true;
