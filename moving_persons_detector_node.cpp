@@ -81,7 +81,8 @@ private:
 
     bool new_laser;//to check if new data of laser is available or not
     bool new_robot;//to check if new data of robot_moving is available or not
-
+	bool new_on_vertex;
+	bool on_vertex;
 
 
 
@@ -99,6 +100,8 @@ moving_persons_detector() {
     current_robot_moving = true;
     new_laser = false;
     new_robot = false;
+    new_on_vertex = false;
+    on_vertex = false;
 
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will run at 10hz
@@ -140,7 +143,9 @@ void update() {
             populateMarkerTopic();
 
             //to publish the goal_to_reach
-            if (new_on_vertex && on_vertex==1) {
+            //the goal is published only if the robot detects more than one moving leg
+            //note that goal_to_reach is only the name of the local variable, you need to subscribe to person_to_reach
+            if (nb_moving_legs_detected) {
                 pub_moving_persons_detector.publish(goal_to_reach);
                 new_on_vertex = false;
             }
@@ -370,10 +375,12 @@ void detect_moving_persons() {
 //CALLBACKS
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
-void on_vertexCallback(const std_msgs::Float32::ConstPtr& ov) {
+void on_vertexCallback(const std_msgs::Bool::ConstPtr& ov) {
     ROS_INFO("on_vertexCallback");
     new_on_vertex = true;
     on_vertex = ov->data;
+
+    return;
 }
 
 void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan) {

@@ -106,13 +106,11 @@ decision() {
 void update() {
 
     // we receive a new /person_to_reach not equal to zero and robair is not doing a translation or a rotation
-    if ( ( new_loc ) && (new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) && (person_to_reach)) {
+    if ((new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) && (person_to_reach.x != 0.0 && person_to_reach.y != 0.0)) {
 
         ROS_INFO("(decision_node) /person_to_reach received: (%f, %f)", person_to_reach.x, person_to_reach.y);
 
-        // transform person_to_reach to relative coordinates
-        person_to_reach.x -= robot_coordinates.x;
-        person_to_reach.y -= robot_coordinates.y;
+        // person_to_reach is already in relative coordinates
 
         // we have a rotation and a translation to perform
         // we compute the /translation_to_do
@@ -128,10 +126,8 @@ void update() {
             if ( person_to_reach.y < 0 )
                 rotation_to_do *=-1;
 
-            rotation_to_do -= robot_orientation;
-
             //we first perform the /rotation_to_do
-            //ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
+            ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
             std_msgs::Float32 msg_rotation_to_do;
             //to complete
             msg_rotation_to_do.data = rotation_to_do;
@@ -150,6 +146,7 @@ void update() {
         new_loc = false;
     }
 
+    // DEBUG messages
     if (new_loc) {
         //ROS_INFO("DEBUG MSG: new_lock");
     }
@@ -159,11 +156,9 @@ void update() {
 
     if ( ( new_loc ) && ( new_goal_to_reach ) && ( !cond_translation ) && ( !cond_rotation ) ) {
 
-        // new_detection_done = false;
-
         ROS_INFO("(decision_node) /goal_to_reach received: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
-        // transform goal_to_reach to relative coordinates
+        // transforms goal_to_reach to relative coordinates
        goal_to_reach.x -= robot_coordinates.x;
        goal_to_reach.y -= robot_coordinates.y;
 
@@ -182,6 +177,7 @@ void update() {
             if ( goal_to_reach.y < 0 )
                 rotation_to_do *=-1;
 
+            // transforms to relative orientation
             rotation_to_do -= robot_orientation;
 
             //we first perform the /rotation_to_do

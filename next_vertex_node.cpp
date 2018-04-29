@@ -36,7 +36,7 @@ private:
     int current_vertex; // index of the current/previous vertex
     int next_vertex;
 
-    bool on_a_vertex;
+    bool on_vertex;
 
     // coordinates of the robot
     geometry_msgs::Point robot_coordinates;
@@ -62,26 +62,22 @@ public:
 next_vertex_choice() {
 
     sub_robot_moving = n.subscribe("robot_moving", 1, &next_vertex_choice::robot_movingCallback, this);
-    // sub_localization = n.subscribe("amcl", 1000, &next_vertex_choice::localizationCallback, this);
     sub_amcl = n.subscribe("amcl_pose", 1000, &next_vertex_choice::localizationCallback, this);
 
     pub_next_vertex_marker = n.advertise<visualization_msgs::Marker>("next_vertex", 1);
     // prepare the topic to pulish the next vertex. Used by rviz
     pub_next_vertex = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);
-    pub_on_vertex = n.advertise<std_msgs::Int8>("on_vertex", 1)
+    pub_on_vertex = n.advertise<std_msgs::Bool>("on_vertex", 1);
 
     previous_robot_moving = true;
     current_robot_moving = false;
     new_robot = false;
     new_loc = false;
 
-    //robot_coordinates.x = 13.631;
-    //robot_coordinates.y = -8.019;
-    //robot_coordinates.z = 0.0;
-
     vertices_list[1000];
 
-/*
+    // chose one of the initialization of vertices_list below.
+    // uncomment the other
     vertices_list[0].x = 16.672;
     vertices_list[0].y = -18.354;
     vertices_list[0].z = 0.0;
@@ -109,24 +105,29 @@ next_vertex_choice() {
     vertices_list[6].x = 13.751;
     vertices_list[6].y = -8.408;
     vertices_list[6].z = 0.0;
-*/
 
+    nb_vertices = 7; // nb of vertices in the vertices_list list
+
+
+/*
 	vertices_list[0].x = 26.260;
 	vertices_list[0].y = -4.786;
 
 	vertices_list[1].x = 20.404;
 	vertices_list[1].y = -6.653;
 
+    nb_vertices = 2; // nb of vertices in the vertices_list list
+*/
+
     goal_to_reach = vertices_list[0];
 
-    nb_vertices = 2; // nb of vertices in the vertices_list list
-    current_vertex = -1; // index of the current/previous vertex probably useless
+    current_vertex = -1; // index of the current/previous vertex
+    // was used to compare current vertex with previous. Not needed anymore.
     next_vertex = 0;
 
     goal_to_reach = vertices_list[next_vertex];
 
     // INFINITE LOOP TO COLLECT DATA
-    // TODO
     ros::Rate r(10);// this node will run at 10hz
     while (ros::ok()) {
         ros::spinOnce();//each callback is called once to collect new data: loc + robot_moving
@@ -139,7 +140,7 @@ next_vertex_choice() {
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 void update() {
-    //debug
+    //DEBUG messages
     if (new_loc) {
         //ROS_INFO("DEBUG MSG: new_loc");
     }
@@ -159,24 +160,22 @@ void update() {
             new_loc = false;
             ROS_INFO("robot is not moving");
 
-            // we only update if the robot was moving before. Otherwise it means everything is already up to date
-            // TODO we may be able to merge the 2 ifs
-            // if (previous_robot_moving) {
             update_goal(); // check if we reached our goal and update the goal_to_reach
 
-            // TODO publish the goal to reach
             pub_next_vertex.publish(goal_to_reach);
-            pub_on_vertex.publish(on_vertex);
+            std_msgs::Bool msg_ov;
+            msg_ov.data = on_vertex;
+
+            pub_on_vertex.publish(msg_ov);
 
             // DONE graphical display of the results
             populateMarkerTopic();
-            // }
-            //pub_next_vertex.publish(goal_to_reach);
         } else {
             ROS_INFO("robot is moving");
         }
         ROS_INFO("\n");
     } else {
+        //comment to reduce the flood and help debuging
         //ROS_INFO("waiting for data");
     }
 } // update
@@ -185,29 +184,26 @@ void update() {
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void update_goal() {
 
-    on_a_vertex = false;
-
     ROS_INFO("checking if the goal has been reached");
 
 	ROS_INFO("Distance to goal : %f",distancePoints(robot_coordinates, goal_to_reach));
 
-    on_vertex = 0;
+    on_vertex = false;
 
     // update the current vertexs if the next vertex is close enough
     if (distancePoints(robot_coordinates, goal_to_reach) <= max_dist_to_goal) {
         ROS_INFO("goal reached");
-        on_a_vertex = true;
 
         current_vertex++;
         next_vertex++;
 
-        on_vertex = 1;
+        on_vertex = true;
 
     	if (next_vertex == nb_vertices) {
         	ROS_INFO("the graph has been swept");
         	next_vertex=0;
         	current_vertex = -1;
-        	//return;
+            // the robot will continue from the beginning of the list, allowing for a simple cycle between 2 points for example
    		}
 
         goal_to_reach = vertices_list[next_vertex];
@@ -219,7 +215,6 @@ void update_goal() {
 	}
 	ROS_INFO("goal: (%f, %f)", goal_to_reach.x, goal_to_reach.y);
 
-    // the next goal is green TODO
     display[nb_pts].x = goal_to_reach.x;
     display[nb_pts].y = goal_to_reach.y;
     display[nb_pts].z = goal_to_reach.z;
