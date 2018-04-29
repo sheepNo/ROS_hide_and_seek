@@ -47,7 +47,7 @@ private:
     float translation_done;
 
     bool new_goal_to_reach;//to check if a new /goal_to_reach is available or not
-    bool new_person_to_reach;//to check if a new /goal_to_reach is available or not
+    bool new_person_to_reach;//to check if a new /person_to_reach is available or not
     bool new_loc;
     bool on_a_vertex;
     bool new_rotation_done;//to check if a new /rotation_done is available or not
@@ -84,23 +84,11 @@ decision() {
 
     new_person_to_reach = false;
     new_goal_to_reach = false;
-    on_a_vertex = true;
+    on_a_vertex = true; // we assume the robot is on a vertex at the beginning
     new_loc = false;
     new_rotation_done = false;
     new_translation_done = false;
 
-    //robot_coordinates.x = 13.631;
-    //robot_coordinates.y = -8.019;
-    //robot_coordinates.z = 0.0;
-    //robot_coordinates.x = 16.888;
-    //robot_coordinates.y = -18.650;
-
-    //goal_to_reach.x = 14.733000;
-    //goal_to_reach.y = -11.351000;
-
-
-    //goal_to_reach.x = 1.000000;
-    //goal_to_reach.y = 1,000000;
 
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will work at 10hz
@@ -117,7 +105,7 @@ decision() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 void update() {
 
-    // we receive a new /goal_to_reach and robair is not doing a translation or a rotation
+    // we receive a new /person_to_reach not equal to zero and robair is not doing a translation or a rotation
     if ( ( new_loc ) && (new_person_to_reach) && ( !cond_translation ) && ( !cond_rotation ) && (person_to_reach)) {
 
         ROS_INFO("(decision_node) /person_to_reach received: (%f, %f)", person_to_reach.x, person_to_reach.y);
